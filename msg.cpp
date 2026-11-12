@@ -1,0 +1,214 @@
+#include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <Arduino.h>
+#include <time.h>
+#include "main.h"
+#include "msg.h"
+#include "action.h"
+#include "atask.h"
+// #include "sensor.h"
+// #include "clock.h"
+
+extern main_ctrl_st main_ctrl;
+// extern sensor_st sensor[SENSOR_NBR_OF];
+// extern sensor_value_st value_array[];
+
+
+void msg_task(void);
+//                                  123456789012345   ival  next  state  prev  cntr flag  call backup
+atask_st msg_th              =    {"Message Task   ", 5000,    0,     0,  255,    0,  1,  msg_task };
+
+
+msg_st msg = {0};
+
+void msg_mod_test(void);
+
+void msg_initialize(void)
+{
+    // atask_add_new(&msg_th);
+}
+
+bool msg_is_valid_char(char c) {
+    if (c >= 'A' && c <= 'Z') return true;
+    if (c >= 'a' && c <= 'z') return true;
+    if (c >= '0' && c <= '9') return true;
+    if (c == ';' || c == '#' || c == '.' || c == '-') return true;
+    return false;
+}
+
+int msg_strip_to_raw(msg_st *msg)
+{
+    int len = strlen(msg->buff);
+    // Serial.printf("len1: %d ",len);
+    if(len == 0 ) return 0;
+    int indx = len-1;
+    while(msg->buff[indx] == '\n' || msg->buff[indx] == '\r'){
+        msg->buff[indx--] = 0x00;
+        if(indx < 3) break;
+    }
+    len = strlen(msg->buff);
+    int i = 0;
+    while(msg->buff[i] == '\n' || msg->buff[i] == '\r'){
+        i++;
+        if(i > len -3) break;
+    }
+    len -= i;
+    return len;
+}
+
+uint8_t msg_split(msg_st *msg,  char separator = ';') 
+{
+    // Serial.print("sg_split() ");
+    // Must start with '<' and end with '>'
+
+    int len = msg_strip_to_raw(msg);
+    // Serial.printf("len1: %d ",len);
+    if(len < 3) return 0;
+    
+    int f = 0;   // field index
+    int i = 0;   // 
+    int p = 0;   // position inside field
+
+    // Serial.printf("len3: %d ",len);
+    // Serial.printf("Start - End: %c %c ",raw_msg[i], raw_msg[len - 1] );
+    if (len < 2 || msg->buff[i] != '<' || msg->buff[len - 1] != '>') return 0;
+    i++;
+    while (i < len - 1 && f < MSG_MAX_FIELDS) {
+        char c = msg->buff[i];
+
+        if (c == separator) {
+            // End of field
+            msg->field[f][p] = '\0';
+            f++;
+            p = 0;
+        }
+        else {
+            if (p < MSG_MAX_FIELD_LEN - 1) {
+                msg->field[f][p++] = c;
+            }
+        }
+        i++;
+    }
+
+    // Final field
+    if (f < MSG_MAX_FIELDS) {
+        msg->field[f][p] = '\0';
+        f++;
+    }
+
+    // Serial.printf("..end return %d\n",f);
+    msg->field_count = f;
+    return f;
+}
+
+void msg_sub_print(msg_st *msg)
+{
+    Serial.printf("Message fields; %d\n", msg->field_count);
+    for (uint8_t i = 0; i < msg->field_count; i++) {
+        Serial.printf("[%d] = %s\n", i, msg->field[i]);
+    }
+}
+
+// <S;PIHA1;T;25.3;H;43;L;9>
+// Split nbr 8
+// Message fields; 8
+// [0] = S
+// [1] = PIHA1
+// [2] = T
+// [3] = 25.3
+// [4] = H
+// [5] = 43
+// [6] = L
+// [7] = 9
+
+
+
+void msg_relay_action()
+{
+    Serial.println("msg_relay_action");
+
+}
+
+void str_to_upper(char str[]) {
+    uint16_t i = 0;
+    while (str[i] != '\0') { 
+        str[i] = toupper(str[i]); // Convert character to uppercase
+        i++;
+    }
+}
+
+
+uint32_t msg_robust_atoi(const char *s, uint8_t *err_cntr, int min, int max)
+{
+    char *endptr;
+    long val = 0;
+
+    if (s == NULL) *err_cntr++;
+    if (*err_cntr == 0) val = strtol(s, &endptr, 10);
+    if (endptr == s) *err_cntr++;
+    if (val > max)  *err_cntr++;
+    if (val < min)  *err_cntr++;
+    if (*err_cntr > 0) val = 0;
+    // Serial.printf("%s %d !%d! ",s,val, *err_cntr );
+    return val;
+}
+
+void msg_process(msg_st *msg)
+{
+    
+    switch(msg->field[0][0])
+    {
+        case 'E':  // <E;Katos;C;12>
+            Serial.printf("Event: %s\n", msg->field[1]);
+            action_new_event( msg->field[1]);
+            break;
+    }
+}
+
+
+
+void  msg_time_action(void)
+{
+    // uint8_t errors = 0;
+    // Serial.printf("Time: %s\n", msg.raw);
+    // if((msg.field_count == 8) && (msg.fields[1][0] == '#'))
+    // {
+    //     main_ctrl.timeinfo.tm_year  = (uint16_t)msg_robust_atoi(msg.fields[3],&errors,2000,2100) -1900;    
+    //     main_ctrl.timeinfo.tm_mon   = (uint8_t)msg_robust_atoi(msg.fields[4],&errors,1,12);    
+    //     main_ctrl.timeinfo.tm_mday  = (uint8_t)msg_robust_atoi(msg.fields[5],&errors,1,31);
+    //     main_ctrl.timeinfo.tm_hour  = (uint8_t)msg_robust_atoi(msg.fields[6],&errors,0,24);
+    //     main_ctrl.timeinfo.tm_min   = (uint8_t)msg_robust_atoi(msg.fields[7],&errors,0,60);
+    //     Serial.printf("time errors %d\n",errors);
+    //     if (errors==0) clock_set_date_time();
+    //     else Serial.println("!!!msg_time_action: Integer conversion Error");
+    // }
+    // else {
+    //     Serial.println("Incorrect Time message");
+    // }
+
+    //clock_set_date_time();
+}
+
+
+
+//     MH11 1      Turn on MH1-1                 RFM: <R;MH1;MH11;1>
+//     PUMP 0      Turn off the pump:            RFM: <R;Dock;PUMP;0> 
+//     PUMP 3600   Turn the pump on for 1 hour:  RFM: <R;Dock;PUMP;3600> 
+//   SMS Get Sensor Values
+//     PIHA1       Get PIHA1 sensor values       SMS: <S;#;PIHA1;T;-12.3;H;44;L;2344>
+//     REPO1       Get sensor report 1           SMS: <S;#;PIHA1;T;12.3;TUPA1;T;22.5;WATER;T;9.4 >
+
+
+typedef struct 
+{
+    msg_from_et from;
+    char   msg[60];
+} test_msg_st;
+
+
+
+void msg_task(void)
+{
+    //msg_process(test[indx].from, test[indx].msg);
+}
