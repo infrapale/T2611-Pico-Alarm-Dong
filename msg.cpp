@@ -156,12 +156,18 @@ uint32_t msg_robust_atoi(const char *s, uint8_t *err_cntr, int min, int max)
 
 void msg_process(msg_st *msg)
 {
-    
+    uint8_t err_cntr = 0;
+
     switch(msg->field[0][0])
     {
         case 'E':  // <E;Katos;C;12>
             Serial.printf("Event: %s\n", msg->field[1]);
             action_new_event( msg->field[1]);
+            break;
+        case 'H':  // <H;n>   n= enumerated home state , 0== away
+            Serial.printf("Home: %s\n", msg->field[1]);
+            home_state_et state = (home_state_et) msg_robust_atoi(msg->field[1], &err_cntr, HOME_AWAY, HOME_NBR_OF);
+            action_set_home_state(state);
             break;
     }
 }

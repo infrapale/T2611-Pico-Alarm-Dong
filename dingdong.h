@@ -19,7 +19,7 @@ typedef enum
 void dingdong_initialize();
 void dingdong_play_wav(wav_files_et wav_indx);
 void dingdong_play_all(void);
-void dingdong_play_tone(uint16_t duration, float freq1, float freq2);
+void dingdong_play_tone(uint32_t duration_ms, float freq1, float freq2, float freq3);
 
 
 

@@ -174,15 +174,22 @@ void dingdong_play_all(void)
 const int SAMPLE_RATE = 44100;
 const float FREQ = 440.0;    // A4
 
-void dingdong_play_tone(uint16_t duration, float freq1, float freq2) 
+void dingdong_play_tone(uint32_t duration_ms, float freq1, float freq2, float freq3) 
 {
     static float phase1 = 0.0;
     static float phase2 = 0.0;
+    static float phase3 = 0.0;
+
     float d1 = freq1 / SAMPLE_RATE;
     float d2 = freq2 / SAMPLE_RATE;
-  uint32_t stop_at = millis() + duration*1000;
+    float d3 = freq3 / SAMPLE_RATE;
+    
+    uint32_t stop_at = millis() + duration_ms;
     int16_t sample;
+    float   ampl_mod = 1.0;
     bool    one_freq = (freq2 == 0.0);
+    bool    do_ampl = (freq3 != 0.0);
+
 
     i2s.setBitsPerSample(16);
     //i2s.setFrequency(header.sampleRate);
@@ -192,11 +199,12 @@ void dingdong_play_tone(uint16_t duration, float freq1, float freq2)
 
         while(millis() < stop_at)
         {
+            if (do_ampl) ampl_mod = (sin(phase3) + 1.0) /2.0;
             if( one_freq) {
-                sample = (int16_t)(sin(phase1) * 30000);
+                sample = (int16_t)(sin(phase1) * ampl_mod * 30000);
             } else {
-                sample = (int16_t)(sin(phase1) * 16000) +
-                         (int16_t)(sin(phase2) * 16000);               
+                sample = (int16_t)(sin(phase1) * ampl_mod * 16000) +
+                         (int16_t)(sin(phase2) * ampl_mod * 16000);               
             }
 
             i2s.write(sample);
@@ -204,9 +212,11 @@ void dingdong_play_tone(uint16_t duration, float freq1, float freq2)
 
             phase1 += 2.0 * PI * d1;
             phase2 += 2.0 * PI * d2;
+            phase3 += 2.0 * PI * d3;
 
             if (phase1 > 2.0 * PI) phase1 -= 2.0 * PI;
             if (phase2 > 2.0 * PI) phase2 -= 2.0 * PI;
+            if (phase3 > 2.0 * PI) phase3 -= 2.0 * PI;
         }    
         i2s.end();
     }

@@ -10,7 +10,7 @@
 // SPI1.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 // uint8_t rx = SPI1.transfer(0x55);
 // SPI1.endTransaction();
-#define SD_RETRY_MAX 8
+#define SD_RETRY_MAX 2
 
 typedef struct
 {
