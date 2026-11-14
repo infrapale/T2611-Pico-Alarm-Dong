@@ -23,6 +23,7 @@ https://learn.adafruit.com/dvi-io/code-the-dashboard
 #include "sd.h"
 #include "dingdong.h"
 #include "action.h"
+#include "super.h"
 
 
 void print_debug_task(void)
@@ -73,6 +74,7 @@ void setup(void) {
     action_initialize();
     dingdong_initialize();
     // dingdong_play_all();
+    super_initialize();
 }
 
 void setup1()
@@ -84,16 +86,18 @@ void setup1()
 // Fast running loop
 void loop() 
 {
-  atask_run();
-  rfm_rx_task();
+    atask_run();
+    rfm_rx_task();
+    super_clear_cntr(SUPER_CNTR_LOOP);
 }
 
 // Slow running loop: WiFI an MQTT
 void loop1()
 {
-  if (millis() > targetTime)
-  {
-    targetTime = millis() + 100;
-    
-  }
+    if (millis() > targetTime)
+    {
+        targetTime = millis() + 100;
+        super_task();
+      
+    }
 }

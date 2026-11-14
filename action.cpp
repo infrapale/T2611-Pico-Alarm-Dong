@@ -63,7 +63,7 @@ event_st event[] =
         .tone =
         { // State             duration Freq1       Freq2       Freq3
             [HOME_AWAY]     = {10000,   800.0,      801.0,      3.0},
-            [HOME_INDOOR]   = {2000,    900.0,      902.0,      0.0},
+            [HOME_INDOOR]   = {1000,    900.0,      902.0,      0.0},
             [HOME_OUTDOOR]  = {5000,    600.0,      620.0,      10.0},
             [HOME_SLEEP]    = {1000,    800.0,      0.0,        0.0},
             [HOME_MUTE]     = {0,       800.0,      0.0,        0.0},
@@ -75,8 +75,8 @@ event_st event[] =
         .state = 0,
         .tone =
         { // State             duration Freq1       Freq2       Freq3
-            [HOME_AWAY]     = {10000,   800.0,      801.0,      3.0},
-            [HOME_INDOOR]   = {2000,    900.0,      902.0,      0.0},
+            [HOME_AWAY]     = {10000,   800.0,      801.0,      4.0},
+            [HOME_INDOOR]   = {1000,    900.0,      902.0,      0.0},
             [HOME_OUTDOOR]  = {5000,    600.0,      620.0,      10.0},
             [HOME_SLEEP]    = {1000,    800.0,      0.0,        0.0},
             [HOME_MUTE]     = {0,       800.0,      0.0,        0.0},
@@ -88,8 +88,8 @@ event_st event[] =
         .state = 0,
         .tone =
         { // State             duration Freq1       Freq2       Freq3
-            [HOME_AWAY]     = {10000,   800.0,      801.0,      3.0},
-            [HOME_INDOOR]   = {2000,    900.0,      902.0,      0.0},
+            [HOME_AWAY]     = {10000,   800.0,      801.0,      6.0},
+            [HOME_INDOOR]   = {1000,    700.0,      702.0,      0.0},
             [HOME_OUTDOOR]  = {5000,    600.0,      620.0,      10.0},
             [HOME_SLEEP]    = {1000,    800.0,      0.0,        0.0},
             [HOME_MUTE]     = {0,       800.0,      0.0,        0.0},
@@ -101,8 +101,8 @@ event_st event[] =
         .state = 0,
         .tone =
         { // State             duration Freq1       Freq2       Freq3
-            [HOME_AWAY]     = {10000,   800.0,      801.0,      3.0},
-            [HOME_INDOOR]   = {2000,    900.0,      902.0,      0.0},
+            [HOME_AWAY]     = {10000,   800.0,      801.0,      10.0},
+            [HOME_INDOOR]   = {1000,    600.0,      602.0,      0.0},
             [HOME_OUTDOOR]  = {5000,    600.0,      620.0,      10.0},
             [HOME_SLEEP]    = {1000,    800.0,      0.0,        0.0},
             [HOME_MUTE]     = {0,       800.0,      0.0,        0.0},

@@ -8,6 +8,7 @@
 #include "rfm.h"
 #include "atask.h"
 #include "sensor.h"
+#include "super.h"
 // #include "clock.h"
 
 void rfm_rx_task(void);
@@ -56,6 +57,8 @@ void rfm_rx_task(void)
         rfm.rx.field_count = msg_split(&rfm.rx, ';');
         if(rfm.rx.field_count > 1){
             msg_process(&rfm.rx);
+            super_clear_cntr(SUPER_CNTR_R69);
+
         }
         // msg_sub_print(&rfm.rx);
         //sensor_process_msg(rfm.rx.field_count);

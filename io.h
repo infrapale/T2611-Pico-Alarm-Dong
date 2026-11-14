@@ -26,6 +26,9 @@
 #define PIN_SW_2        (14u)
 #define PIN_SW_3        (15u)
 
+#define PIN_SW_WD_EN    PIN_SW_1
+
+
 // SD Card SPI
 #define PIN_SPI_0_SCK   (18u)
 #define PIN_SPI_0_MOSI  (19u)
@@ -53,7 +56,7 @@ typedef enum
   BLINK_SLOW_BLINK,
   BLINK_BLINK,
   BLINK_FAST_BLINK,
-  BLINK_CLIENT,
+  BLINK_SOS,
   BLINK_RELIABLE_CLIENT,
   BLINK_SERVER,
   BLINK_RELIABLE_SERVER,
@@ -67,10 +70,12 @@ typedef enum
 void io_initialize(void);
 void io_task_initialize(void);
 
+bool io_wd_is_enabled(void);
+
 uint16_t io_read_ldr(void);
 uint16_t io_read_akbd(void);
-void    io_led_flash(led_index_et lindx, blink_et bindx, uint16_t tick_nbr);
-void    io_task(void);
+void io_led_flash(led_index_et lindx, blink_et bindx, uint16_t tick_nbr);
+void io_task(void);
 
 
 

@@ -1,6 +1,7 @@
 #include "main.h"
 #include "io.h"
 #include "atask.h"
+#include "super.h"
 
 typedef struct
 {
@@ -32,7 +33,7 @@ const uint32_t led_pattern[BLINK_NBR_OF] =
     0b1001001001001000,
     0b1111111100000000,
     0b1111000011110000,
-    0b1100110011001100,
+    0b1100111000111000,
     0b1111000000100000,
     0b1111000010001000,
     0b1111001010101010,
@@ -50,6 +51,9 @@ void io_initialize(void)
     Serial.println("io_initialize()");
     pinMode(PIN_PIR, INPUT);
     pinMode(PIN_LDR_AN, INPUT);
+    pinMode(PIN_SW_1, INPUT_PULLUP);
+    pinMode(PIN_SW_2, INPUT_PULLUP);
+    pinMode(PIN_SW_3, INPUT_PULLUP);
     analogReadResolution(12);
     io_ctrl.pattern_bit = 0;
     for (uint8_t lindx = 0; lindx < LED_INDX_NBR_OF; lindx++ )
@@ -69,6 +73,11 @@ void io_task_initialize(void)
 uint16_t io_read_ldr(void)
 {
   return analogRead(PIN_LDR_AN);
+}
+
+bool io_wd_is_enabled(void)
+{
+    return (digitalRead(PIN_SW_WD_EN) == HIGH);
 }
 
 void io_led_flash(led_index_et lindx, blink_et bindx, uint16_t tick_nbr)
@@ -92,4 +101,5 @@ void io_task(void)
         }
     } 
     if (++io_ctrl.pattern_bit >= 16) io_ctrl.pattern_bit = 0;
+    super_clear_cntr(SUPER_CNTR_IO);
 }
